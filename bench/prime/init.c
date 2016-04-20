@@ -1,4 +1,4 @@
 
 void prime_init () {
-    x = 19;
+    x = 4;
 }

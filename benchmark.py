@@ -3,15 +3,20 @@
 
 import json
 import subprocess
+import sys
 
+from input import Input, Types, type_str
 from shutil import rmtree
 from os import mkdir, remove, devnull
 from os.path import join, dirname, realpath, isfile
 
 class Benchmark:
 
-    def __init__(self, name, path, out_path, sim_path, sim_script, sim_outdir):
+    """Docstring for Benchmark. """
+
+    def __init__(self, name, input, path, out_path, sim_path, sim_script, sim_outdir):
         self.name = name
+        self.input = input
         self.path = path
         self.out_path = out_path
         self.sim_path = sim_path
@@ -30,7 +35,7 @@ class Benchmark:
         with open(join(self.out_path, self.out_file), "w") as f:
             f.write("cycles\n")
 
-    def run(self, input, sim_flags, debug=False):
+    def run(self, sim_flags, verbose=False, debug=False):
         """
         Generate input file for benchmark, compile, run and append execution
         time to output file
@@ -42,26 +47,56 @@ class Benchmark:
         else:
             output = open(devnull, "w")
 
-        # Generate input file
-        cmd = "{} --input '{}'".format(
-                join(self.path, "gen_input.py"),
-                json.dumps(input))
-        subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+        if verbose:
+            print "-------------------------"
+            print "Running benchmark '{}'".format(self.name)
+            for var_name, var_type in self.input:
+                print "{} ({})".format(var_name, type_str(var_type))
 
-        # Compile benchmark with input, requires Makefile
-        cmd = "make clean -C {0} && make -C {0}".format(self.path)
-        subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+        for var_name, var_type in self.input:
 
-        # Run benchmark
-        cmd = "{} -q --outdir {} {} -c {} {}".format(
-                self.sim_path,
-                join(self.out_path, self.sim_outdir),
-                join(self.sim_script),
-                join(self.path, self.bench_exec),
-                sim_flags)
-        subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+            # Create generator for input
+            var_input = Input(var_type)
+            var_gen = var_input.gen_input()
 
-        return self.extract_cycles()
+            if verbose:
+                print "\n",
+
+            for var_val in var_gen:
+
+                input_json = {var_name:var_val}
+
+                if verbose:
+                    sys.stdout.write("\r{}: {}".format(var_name, var_val))
+                    sys.stdout.flush()
+
+                # Generate input file
+                cmd = "{} --input '{}'".format(
+                        join(self.path, "gen_input.py"),
+                        json.dumps(input_json))
+                subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+
+                # Compile benchmark with input, requires Makefile
+                cmd = "make clean -C {0} && make -C {0}".format(self.path)
+                subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+
+                # Run benchmark
+                cmd = "{} -q --outdir {} {} -c {} {}".format(
+                        self.sim_path,
+                        join(self.out_path, self.sim_outdir),
+                        join(self.sim_script),
+                        join(self.path, self.bench_exec),
+                        sim_flags)
+                subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+
+                # Output cycle count
+                self.output_cycles(self.extract_cycles())
+
+        if verbose:
+            print "\nDone"
+            print "-------------------------"
+
+        return True
 
     def extract_cycles(self):
         """
