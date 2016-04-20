@@ -26,20 +26,13 @@ class Benchmark:
         self.out_file = "cycles.txt"
         self.bench_exec = "a.out"
 
-        # Initialize output directory
-        self.clear_output()
-        try:
-            mkdir(self.out_path)
-        except:
-            pass
-        with open(join(self.out_path, self.out_file), "w") as f:
-            f.write("cycles\n")
-
     def run(self, sim_flags, verbose=False, debug=False):
         """
         Generate input file for benchmark, compile, run and append execution
         time to output file
         """
+
+        self.init_output()
 
         # Show subprocess call output if debug flag is set
         if debug:
@@ -102,7 +95,6 @@ class Benchmark:
         """
         Extract cycle count from gem5 stats.txt file
         """
-
         # Only read first 6 lines, contains all the desired information
         stats = []
         with open(join(self.out_path, self.sim_outdir, "stats.txt"), "r") as f:
@@ -117,6 +109,18 @@ class Benchmark:
         """
         with open(join(self.out_path, self.out_file), "a") as f:
             f.write("{}\n".format(ticks))
+
+    def init_output(self):
+        """
+        Initializate output directory
+        """
+        self.clear_output()
+        try:
+            mkdir(self.out_path)
+        except:
+            pass
+        with open(join(self.out_path, self.out_file), "w") as f:
+            f.write("cycles\n")
 
     def clear_output(self):
         """

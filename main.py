@@ -15,31 +15,27 @@ from benchmark import Benchmark
 
 from os.path import join
 
+benchmarks = {
+                "fac" :   [ ("v_1", Types.int32_pos)],
+                "prime" : [ ("v_1", Types.int32_pos)]
+             }
+
 if __name__ == '__main__':
 
-    # name = "fac"
-    # fac = Benchmark(name,
-    #                 join(config.main["bench_path"], name),
-    #                 join(config.main["out_path"], name),
-    #                 config.gem5["exec"],
-    #                 join(config.gem5["script"]),
-    #                 config.gem5["out_dir"])
-    #
-    # for i in range(0, 500):
-    #     ticks = fac.run({"v_1":i}, "--cpu-type=TimingSimpleCPU")
-    #     fac.output_cycles(ticks)
+    sim_flags = "--cpu-type=TimingSimpleCPU"
 
-    name = "prime"
-    input = [ ("v_1", Types.int32_pos), ("v_1", Types.int32_pos) ]
-    bench = Benchmark(name,
-                      input,
-                      join(config.main["bench_path"], name),
-                      join(config.main["out_path"], name),
+    bench_name = "prime"
+    bench_input = benchmarks[bench_name]
+
+    bench = Benchmark(bench_name,
+                      bench_input,
+                      join(config.main["bench_path"], bench_name),
+                      join(config.main["out_path"], bench_name),
                       config.gem5["exec"],
                       join(config.gem5["script"]),
                       config.gem5["out_dir"])
 
-    bench.run("--cpu-type=TimingSimpleCPU", verbose=True)
+    bench.run(sim_flags, verbose=True)
 
     # etd.plot_frequency("prime", "output/prime/cycles.txt", "output/prime/")
     # etd.plot_histogram("prime", "output/prime/cycles.txt", "output/prime/")
