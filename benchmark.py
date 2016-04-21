@@ -26,7 +26,7 @@ class Benchmark:
         self.out_file = "cycles.txt"
         self.bench_exec = "a.out"
 
-    def run(self, sim_flags, verbose=False, debug=False):
+    def run(self, sim_flags, quiet=False, debug=False):
         """
         Generate input file for benchmark, compile, run and append execution
         time to output file
@@ -42,7 +42,7 @@ class Benchmark:
         else:
             output = open(devnull, "w")
 
-        if verbose:
+        if not quiet:
             print "-------------------------"
             print "Running benchmark '{}'".format(self.name)
             for var_name, var_type in self.input:
@@ -58,7 +58,7 @@ class Benchmark:
                 var_input = Input(var_type[0])
             var_gen = var_input.gen_input()
 
-            if verbose:
+            if not quiet:
                 print "\n",
 
             for var_val in var_gen:
@@ -67,7 +67,7 @@ class Benchmark:
                 if var_type[0] == Types.int32_uniquearray:
                     input_json["size"] = var_type[1]
 
-                if verbose:
+                if not quiet:
                     sys.stdout.write("\r{}: {}".format(var_name, var_val))
                     sys.stdout.flush()
 
@@ -94,7 +94,7 @@ class Benchmark:
                 # Output cycle count
                 self.output_cycles(self.extract_cycles())
 
-        if verbose:
+        if not quiet:
             print "\nDone, ran {} simulations".format(sim_count)
             print "-------------------------"
 
