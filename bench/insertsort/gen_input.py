@@ -10,8 +10,19 @@ f = open(join(dirname(realpath(__file__)), "init.c"), "w")
 
 t = Template(
 """
-void prime_init () {
-    x = $i_1;
+#define ARRAY_SIZE $size
+
+unsigned int insertsort_a[ARRAY_SIZE];
+
+void insertsort_initialize(unsigned int* array) {
+    register int i;
+    for ( int i = 0; i < ARRAY_SIZE; i++ )
+        insertsort_a[i] = array[i];
+}
+
+void insertsort_init() {
+    unsigned int a[ARRAY_SIZE] = { $a_1 };
+    insertsort_initialize(a);
 }
 """)
 

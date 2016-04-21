@@ -4,6 +4,7 @@
 # variables to generate. The Input class contains the generator functions to
 # go along with the defined input types.
 
+import itertools
 import numpy as np
 
 class Types:
@@ -29,8 +30,9 @@ def type_str(input_type):
 
 class Input:
 
-    def __init__(self, input_type):
+    def __init__(self, input_type, input_size=None):
         self.input_type = input_type
+        self.input_size = input_size
 
     def gen_input(self):
         if self.input_type == Types.int32_full:
@@ -46,9 +48,19 @@ class Input:
             return self.gen_ints(0, np.power(2, 32) - 1)
 
         elif self.input_type == Types.int32_uniquearray:
-            return self.gen_uniquearrays()
+            return self.gen_uniquearrays(self.input_size)
 
     def gen_ints(self, lower, upper):
-        # Use xrange to enforce lazy generation as not fill memory
+        """
+        Generator for ints between lower and upper bound
+        """
         for i in xrange(lower, upper):
             yield i
+
+    def gen_uniquearrays(self, size):
+        """
+        Returns all permutations for an array with unique values ranging from
+        0 to size, returned as comma seperated string
+        """
+        for perm in itertools.permutations(range(size)):
+            yield ",".join(map(str, perm))

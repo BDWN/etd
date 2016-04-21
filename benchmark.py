@@ -34,6 +34,8 @@ class Benchmark:
 
         self.init_output()
 
+        sim_count = 0
+
         # Show subprocess call output if debug flag is set
         if debug:
             output = None
@@ -44,12 +46,16 @@ class Benchmark:
             print "-------------------------"
             print "Running benchmark '{}'".format(self.name)
             for var_name, var_type in self.input:
-                print "{} ({})".format(var_name, type_str(var_type))
+                print "{} ({})".format(var_name, type_str(var_type[0]))
 
         for var_name, var_type in self.input:
 
-            # Create generator for input
-            var_input = Input(var_type)
+            # Create generator for input, var_type tuple contains the input
+            # type at index 0, and a optional size at index 1
+            if var_type[0] == Types.int32_uniquearray:
+                var_input = Input(var_type[0], var_type[1])
+            else:
+                var_input = Input(var_type[0])
             var_gen = var_input.gen_input()
 
             if verbose:
@@ -58,6 +64,8 @@ class Benchmark:
             for var_val in var_gen:
 
                 input_json = {var_name:var_val}
+                if var_type[0] == Types.int32_uniquearray:
+                    input_json["size"] = var_type[1]
 
                 if verbose:
                     sys.stdout.write("\r{}: {}".format(var_name, var_val))
@@ -81,12 +89,13 @@ class Benchmark:
                         join(self.path, self.bench_exec),
                         sim_flags)
                 subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+                sim_count = sim_count + 1
 
                 # Output cycle count
                 self.output_cycles(self.extract_cycles())
 
         if verbose:
-            print "\nDone"
+            print "\nDone, ran {} simulations".format(sim_count)
             print "-------------------------"
 
         return True

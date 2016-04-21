@@ -16,15 +16,18 @@ from benchmark import Benchmark
 from os.path import join
 
 benchmarks = {
-                "fac" :   [ ("v_1", Types.int32_pos)],
-                "prime" : [ ("v_1", Types.int32_pos)]
+                "fac"        : [ ("i_1", (Types.int32_pos,))],
+                "recursion"  : [ ("i_1", (Types.int32_pos,))],
+                "prime"      : [ ("i_1", (Types.int32_uns,))],
+                "bsort"      : [ ("a_1", (Types.int32_uniquearray, 6))],
+                "insertsort" : [ ("a_1", (Types.int32_uniquearray, 6))]
              }
 
 if __name__ == '__main__':
 
     sim_flags = "--cpu-type=TimingSimpleCPU"
 
-    bench_name = "prime"
+    bench_name = "bsort"
     bench_input = benchmarks[bench_name]
 
     bench = Benchmark(bench_name,
@@ -35,7 +38,7 @@ if __name__ == '__main__':
                       join(config.gem5["script"]),
                       config.gem5["out_dir"])
 
-    bench.run(sim_flags, verbose=True)
+    # bench.run(sim_flags, verbose=True)
 
-    # etd.plot_frequency("prime", "output/prime/cycles.txt", "output/prime/")
-    # etd.plot_histogram("prime", "output/prime/cycles.txt", "output/prime/")
+    etd.plot_frequency(bench_name, "output/{}/cycles.txt".format(bench_name), "output/{}/".format(bench_name))
+    etd.plot_histogram(bench_name, "output/{}/cycles.txt".format(bench_name), "output/{}/".format(bench_name))

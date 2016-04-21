@@ -13,7 +13,7 @@ t = Template(
 void fac_init()
 {
     fac_s = 0;
-    fac_n = $v_1;
+    fac_n = $i_1;
 }
 """)
 

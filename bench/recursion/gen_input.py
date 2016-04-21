@@ -10,8 +10,8 @@ f = open(join(dirname(realpath(__file__)), "init.c"), "w")
 
 t = Template(
 """
-void prime_init () {
-    x = $i_1;
+void recursion_init() {
+    recursion_input = $i_1;
 }
 """)
 

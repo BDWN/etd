@@ -1,4 +1,4 @@
 
 void prime_init () {
-    x = 6;
+    x = 789;
 }

@@ -17,7 +17,7 @@ def plot_frequency(name, data_file, out_path):
     ax.set_xlabel("Execution time (cycles)")
     ax.set_ylabel("Frequency")
 
-    plt.plot(cycles, freq, "r.")
+    plt.plot(cycles, freq, "r")
     plt.savefig(join(out_path, "{}_frequency.png".format(name)))
     plt.show()
 
@@ -31,9 +31,9 @@ def plot_histogram(name, data_file, out_path):
     ax.set_ylabel("Frequency")
     # ax.set_xlim(min(edges), max(edges))
 
-    plt.hist(data, 25)
+    plt.hist(data, np.power(len(data), 1/3.0))
     ax = plt.subplot(212)
-    plt.hist(data, 100)
+    plt.hist(data, 30)
     plt.savefig(join(out_path, "{}_histogram.png".format(name)))
 
     plt.show()
