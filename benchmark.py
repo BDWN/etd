@@ -26,6 +26,8 @@ class Benchmark:
         self.out_file = "cycles.txt"
         self.bench_exec = "a.out"
 
+        self.results = {}
+
     def run(self, sim_flags, quiet=False, debug=False):
         """
         Generate input file for benchmark, compile, run and append execution
@@ -48,33 +50,36 @@ class Benchmark:
             for var_name, var_type in self.input:
                 print "{} ({})".format(var_name, type_str(var_type[0]))
 
-        for var_name, var_type in self.input:
-
-            # Create generator for input, var_type tuple contains the input
-            # type at index 0, and a optional size at index 1
-            if var_type[0] == Types.int32_uniquearray:
-                var_input = Input(var_type[0], var_type[1])
-            else:
-                var_input = Input(var_type[0])
-            var_gen = var_input.gen_input()
+        for input_name, input_description in self.input:
+            # Create generator for input, input_description tuple:
+            # int:          (Types.int, lower_bound, upper_bound)
+            # uniquearray:  (Types.uniquearray, size)
+            if input_description[0] == Types.int:
+                input = Input(input_description[0], lower_bound = input_description[1],
+                                                    upper_bound = input_description[2])
+            elif input_description[0] == Types.uniquearray:
+                input = Input(input_description[0], input_size = input_description[1])
+            input_gen = input.gen_input()
 
             if not quiet:
                 print "\n",
 
-            for var_val in var_gen:
+            # Loop over generated input values
+            for input_val in input_gen:
 
-                input_json = {var_name:var_val}
-                if var_type[0] == Types.int32_uniquearray:
-                    input_json["size"] = var_type[1]
+                # Construct command line argument for gen_input.py
+                input_arg = {var_name:input_val}
+                if var_type[0] == Types.uniquearray:
+                    input_arg["size"] = var_type[1]
 
                 if not quiet:
-                    sys.stdout.write("\r{}: {}".format(var_name, var_val))
+                    sys.stdout.write("\r{}: {}".format(var_name, input_val))
                     sys.stdout.flush()
 
                 # Generate input file
                 cmd = "{} --input '{}'".format(
                         join(self.path, "gen_input.py"),
-                        json.dumps(input_json))
+                        json.dumps(input_arg))
                 subprocess.call(cmd, shell=True, stdout=output, stderr=output)
 
                 # Compile benchmark with input, requires Makefile
@@ -91,8 +96,10 @@ class Benchmark:
                 subprocess.call(cmd, shell=True, stdout=output, stderr=output)
                 sim_count = sim_count + 1
 
-                # Output cycle count
-                self.output_cycles(self.extract_cycles())
+                cycles = self.extract_cycles()
+                self.results[cycles] = self.results.get(cycles, 0) + 1
+
+        self.write_output()
 
         if not quiet:
             print "\nDone, ran {} simulations".format(sim_count)
@@ -109,15 +116,16 @@ class Benchmark:
         with open(join(self.out_path, self.sim_outdir, "stats.txt"), "r") as f:
             stats.extend(f.readline() for i in range(4))
 
-        # Return tick count
+        # Return cycle count
         return stats[3].split()[1]
 
-    def output_cycles(self, ticks):
+    def write_output(self):
         """
-        Append simulation stats to output file
+        Write results to file
         """
         with open(join(self.out_path, self.out_file), "a") as f:
-            f.write("{}\n".format(ticks))
+            for cycles, freq in self.results.items():
+                f.write("{},{}\n".format(cycles, freq))
 
     def init_output(self):
         """
@@ -129,7 +137,7 @@ class Benchmark:
         except:
             pass
         with open(join(self.out_path, self.out_file), "w") as f:
-            f.write("cycles\n")
+            f.write("cycles,frequency\n")
 
     def clear_output(self):
         """

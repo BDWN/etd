@@ -14,11 +14,11 @@ from benchmark import Benchmark
 from os.path import join
 
 benchmarks = {
-                "fac"        : [ ("i_1", (Types.int32_pos,))],
-                "recursion"  : [ ("i_1", (Types.int32_pos,))],
-                "prime"      : [ ("i_1", (Types.int32_uns,))],
-                "bsort"      : [ ("a_1", (Types.int32_uniquearray, 7))],
-                "insertsort" : [ ("a_1", (Types.int32_uniquearray, 6))]
+                "fac"        : [ ("i_1", (Types.int, 90, 100))],
+                "recursion"  : [ ("i_1", (Types.int, 0, 100))],
+                "prime"      : [ ("i_1", (Types.int, 0, 100))],
+                "bsort"      : [ ("a_1", (Types.uniquearray, 4))],
+                "insertsort" : [ ("a_1", (Types.uniquearray, 5))]
              }
 
 if __name__ == '__main__':
@@ -53,7 +53,7 @@ if __name__ == '__main__':
                       join(config.gem5["script"]),
                       config.gem5["out_dir"])
 
-    bench.run(sim_flags, quiet=args.quiet, debug=args.debug)
+    # bench.run(sim_flags, quiet=args.quiet, debug=args.debug)
 
-    etd.plot_frequency(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
-    etd.plot_histogram(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
+    etd.plot_etd(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
+    # etd.plot_histogram(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
