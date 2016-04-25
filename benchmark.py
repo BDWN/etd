@@ -47,18 +47,19 @@ class Benchmark:
         if not quiet:
             print "-------------------------"
             print "Running benchmark '{}'".format(self.name)
-            for var_name, var_type in self.input:
-                print "{} ({})".format(var_name, type_str(var_type[0]))
+            for input_name, input_type in self.input:
+                print "{} ({})".format(input_name, type_str(input_type[0]))
 
         for input_name, input_description in self.input:
             # Create generator for input, input_description tuple:
             # int:          (Types.int, lower_bound, upper_bound)
             # uniquearray:  (Types.uniquearray, size)
-            if input_description[0] == Types.int:
-                input = Input(input_description[0], lower_bound = input_description[1],
-                                                    upper_bound = input_description[2])
-            elif input_description[0] == Types.uniquearray:
-                input = Input(input_description[0], input_size = input_description[1])
+            input_type = input_description[0]
+            if input_type == Types.int:
+                input = Input(input_type, lower_bound=input_description[1],
+                                                    upper_bound=input_description[2])
+            elif input_type == Types.uniquearray or input_type == Types.array:
+                input = Input(input_type, input_size=input_description[1])
             input_gen = input.gen_input()
 
             if not quiet:
@@ -68,12 +69,12 @@ class Benchmark:
             for input_val in input_gen:
 
                 # Construct command line argument for gen_input.py
-                input_arg = {var_name:input_val}
-                if var_type[0] == Types.uniquearray:
-                    input_arg["size"] = var_type[1]
+                input_arg = {input_name:input_val}
+                if input_type == Types.uniquearray or input_type == Types.array:
+                    input_arg["size"] = input_description[1]
 
                 if not quiet:
-                    sys.stdout.write("\r{}: {}".format(var_name, input_val))
+                    sys.stdout.write("\r{}: {}".format(input_name, input_val))
                     sys.stdout.flush()
 
                 # Generate input file

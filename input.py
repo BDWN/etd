@@ -9,11 +9,14 @@ import numpy as np
 
 class Types:
     int          = 1
-    uniquearray  = 2
+    array        = 2
+    uniquearray  = 3
 
 def type_str(input_type):
     if input_type == Types.int:
         return "int"
+    if input_type == Types.array:
+        return "array"
     elif input_type == Types.uniquearray:
         return "uniquearray"
 
@@ -28,6 +31,8 @@ class Input:
     def gen_input(self):
         if self.input_type == Types.int:
             return self.gen_ints()
+        elif self.input_type == Types.array:
+            return self.gen_arrays()
         elif self.input_type == Types.uniquearray:
             return self.gen_uniquearrays()
 
@@ -37,6 +42,14 @@ class Input:
         """
         for i in xrange(self.lower_bound, self.upper_bound+ 1):
             yield i
+
+    def gen_arrays(self):
+        """
+        Return all combinations for an array with unique values ranging from
+        0 to size, returned as comma seperated string
+        """
+        for comb in itertools.product(range(self.input_size), repeat=self.input_size):
+            yield ",".join(map(str, comb))
 
     def gen_uniquearrays(self):
         """

@@ -17,8 +17,8 @@ benchmarks = {
                 "fac"        : [ ("i_1", (Types.int, 90, 100))],
                 "recursion"  : [ ("i_1", (Types.int, 0, 100))],
                 "prime"      : [ ("i_1", (Types.int, 0, 100))],
-                "bsort"      : [ ("a_1", (Types.uniquearray, 4))],
-                "insertsort" : [ ("a_1", (Types.uniquearray, 5))]
+                "bsort"      : [ ("a_1", (Types.array, 3))],
+                "insertsort" : [ ("a_1", (Types.uniquearray, 4))]
              }
 
 if __name__ == '__main__':
@@ -34,15 +34,6 @@ if __name__ == '__main__':
         for bench_name in benchmarks:
             print bench_name
 
-    sim_flags = "--cpu-type=TimingSimpleCPU \
-                 --caches\
-                 --l1d_size=64kB\
-                 --l1i_size=16kB\
-                 --l2cache\
-                 --l2_size=128kB\
-                 "
-    # sim_flags = "--cpu-type=TimingSimpleCPU"
-
     bench_input = benchmarks[args.bench]
 
     bench = Benchmark(args.bench,
@@ -53,7 +44,6 @@ if __name__ == '__main__':
                       join(config.gem5["script"]),
                       config.gem5["out_dir"])
 
-    # bench.run(sim_flags, quiet=args.quiet, debug=args.debug)
+    bench.run(config.gem5["sim_flags"], quiet=args.quiet, debug=args.debug)
 
-    etd.plot_etd(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
-    # etd.plot_histogram(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
+    # etd.plot_etd(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
