@@ -15,10 +15,10 @@ from os.path import join
 
 benchmarks = {
                 "fac"        : [ ("i_1", (Types.int, 90, 100))],
-                "recursion"  : [ ("i_1", (Types.int, 0, 100))],
+                "recursion"  : [ ("i_1", (Types.int, 0, 25))],
                 "prime"      : [ ("i_1", (Types.int, 0, 100))],
-                "bsort"      : [ ("a_1", (Types.array, 3))],
-                "insertsort" : [ ("a_1", (Types.uniquearray, 4))]
+                "bsort"      : [ ("a_1", (Types.uniquearray, 7))],
+                "insertsort" : [ ("a_1", (Types.uniquearray, 7))]
              }
 
 if __name__ == '__main__':
@@ -46,4 +46,4 @@ if __name__ == '__main__':
 
     bench.run(config.gem5["sim_flags"], quiet=args.quiet, debug=args.debug)
 
-    # etd.plot_etd(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
+    etd.plot_etd(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
