@@ -1,5 +1,5 @@
 # etd.py
-# bladiebla
+# Plotting execution time distribution
 
 import numpy as np
 import matplotlib.pyplot as plt

@@ -1,25 +1,37 @@
 # config.py
-# bladiebla
 
 main = {
 
+    # Parent directory containing benchmark source files
     "bench_path": "bench",
+
+    # Directory to which all output is saved
     "out_path": "output"
 
 }
 
 gem5 = {
 
+    # Gem5 simulator main path
     "path": "/home/bdwn/uni/y3/thesis/gem5/",
+
+    # Gem5 simulator binary
     "exec": "/home/bdwn/uni/y3/thesis/gem5/build/ARM/gem5.opt",
-    "out_dir": "m5out",
+
+    # Script with which to run Gem5
     "script": "se.py",
+
+    # Arguments passed to simulator script
     "sim_flags": "--cpu-type=TimingSimpleCPU \
                   --caches \
                   --l1d_size=64kB \
                   --l1i_size=16kB \
                   --l2cache \
                   --l2_size=128kB \
-                  "
+                  ",
+
+    # Output directory name for simulator statistics:
+    # 'out_path'/'benchmark_name'/'out_dir'/
+    "out_dir": "m5out",
 
 }
