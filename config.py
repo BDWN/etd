@@ -35,3 +35,15 @@ gem5 = {
     "out_dir": "m5out",
 
 }
+
+benchmark = {
+
+    # Resulting output file created by running benchmark
+    "out_file": "cycles",
+    "out_ext": "csv",
+
+    # Filename of benchmark executable, must correspond with filename specified
+    # in benchmark Makefile
+    "bench_exec": "a.out"
+
+}

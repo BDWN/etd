@@ -111,7 +111,10 @@ class Benchmark:
         print "-------------------------"
 
         self.clean_output()
-        self.write_output()
+        if self.write_output():
+            print "Output saved to '{}'".format(join(self.out_path, self.out_filename))
+        else:
+            print "Error saving output"
 
     def extract_cycles(self):
         """
@@ -133,7 +136,8 @@ class Benchmark:
             f.write("cycles,frequency\n")
             for cycles, freq in self.results.items():
                 f.write("{},{}\n".format(cycles, freq))
-            print "Output saved to '{}'".format(join(self.out_path, self.out_filename))
+            return True
+        return False
 
     def init_output(self):
         """

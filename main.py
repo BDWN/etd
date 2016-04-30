@@ -8,24 +8,17 @@ import argparse
 import config
 import etd
 
-from input import Types
 from benchmark import Benchmark
+from benchmarks import benchmarks
 
 from os.path import join
-
-benchmarks = {
-                "fac"        : [ ("i_1", (Types.int, 90, 100))],
-                "recursion"  : [ ("i_1", (Types.int, 0, 25))],
-                "prime"      : [ ("i_1", (Types.int, 0, 100))],
-                "bsort"      : [ ("a_1", (Types.uniquearray, 7))],
-                "insertsort" : [ ("a_1", (Types.uniquearray, 7))]
-             }
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-q", "--quiet", action="store_true", help="suppress summary output")
-    parser.add_argument("-d", "--debug", action="store_true", help="show command output")
+    parser.add_argument("-o", "--overwrite", action="store_true", help="force overwriting of any previous output")
+    parser.add_argument("-n", "--nosim", action="store_true", help="do not simulate benchmarks, only plot results")
+    parser.add_argument("-d", "--debug", action="store_true", help="show compilation and simulator output")
     parser.add_argument("bench", type=str, help="name of benchmark")
     args = parser.parse_args()
 
@@ -42,8 +35,10 @@ if __name__ == '__main__':
                       join(config.main["out_path"], args.bench),
                       config.gem5["exec"],
                       join(config.gem5["script"]),
-                      config.gem5["out_dir"])
+                      config.gem5["out_dir"],
+                      args.overwrite)
 
-    bench.run(config.gem5["sim_flags"], quiet=args.quiet, debug=args.debug)
+    if not args.nosim:
+        bench.run(config.gem5["sim_flags"], debug=args.debug)
 
-    etd.plot_etd(args.bench, "output/{}/cycles.txt".format(args.bench), "output/{}/".format(args.bench))
+    etd.plot_etd("output/{}/cycles.csv".format(args.bench), out_path="output/{}/".format(args.bench), name=args.bench, show=True)
