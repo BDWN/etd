@@ -20,9 +20,11 @@ def plot_etd(name, data_file, out_path):
     ax.set_title("Execution time distribution '{}' ({} measurements)".format(name, int(num_measurements)))
     ax.set_xlabel("Execution time (cycles)")
     ax.set_ylabel("Relative frequency")
-    ax.set_xlim(min(data["cycles"]), max(data["cycles"]))
+    ax.set_xlim(min(data["cycles"]) - 0.1*(min(data["cycles"])), max(data["cycles"]) + 0.1*(max(data["cycles"])))
     ax.set_ylim(0, max(data["frequency"]) + 0.1*(max(data["frequency"])))
 
-    plt.plot(data["cycles"], data["frequency"], color="red", lw=2.0)
+    # plt.plot(data["cycles"], data["frequency"], color="black", lw=1.0)
+    plt.bar(data["cycles"], data["frequency"], color="blue", lw=2.0)
+    # plt.fill_between(data["cycles"],data["frequency"], color="grey")
     plt.savefig(join(out_path, "{}_etd.png".format(name)))
     plt.show()
