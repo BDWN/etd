@@ -13,10 +13,11 @@ def plot_etd(name, data_file, out_path):
 
     # Sort and normalize data (divide by total number of measurements)
     data.sort()
-    data["frequency"] /= np.sum(data["frequency"])
+    num_measurements = np.sum(data["frequency"])
+    data["frequency"] /= num_measurements
 
     ax = plt.subplot(111)
-    ax.set_title("Execution time distribution '{}'".format(name))
+    ax.set_title("Execution time distribution '{}' ({} measurements)".format(name, int(num_measurements)))
     ax.set_xlabel("Execution time (cycles)")
     ax.set_ylabel("Relative frequency")
     ax.set_xlim(min(data["cycles"]), max(data["cycles"]))
