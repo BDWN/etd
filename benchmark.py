@@ -100,6 +100,10 @@ class Benchmark:
                 cycles = self.extract_cycles()
                 self.results[cycles] = self.results.get(cycles, 0) + 1
 
+                # Periodically write to output file while running
+                if sim_count % 25 == 0:
+                    self.write_output()
+
         self.write_output()
 
         if not quiet:
@@ -124,7 +128,8 @@ class Benchmark:
         """
         Write results to file
         """
-        with open(join(self.out_path, self.out_file), "a") as f:
+        with open(join(self.out_path, self.out_file), "w") as f:
+            f.write("cycles,frequency\n")
             for cycles, freq in self.results.items():
                 f.write("{},{}\n".format(cycles, freq))
 
@@ -137,8 +142,6 @@ class Benchmark:
             mkdir(self.out_path)
         except:
             pass
-        with open(join(self.out_path, self.out_file), "w") as f:
-            f.write("cycles,frequency\n")
 
     def clear_output(self):
         """
