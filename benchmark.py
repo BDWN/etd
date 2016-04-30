@@ -4,17 +4,20 @@
 import json
 import subprocess
 import sys
+import time
+
+import config
 
 from input import Input, Types, type_str
 from shutil import rmtree
-from os import mkdir, remove, devnull
+from os import mkdir, remove, devnull, rename
 from os.path import join, dirname, realpath, isfile
 
 class Benchmark:
 
     """Docstring for Benchmark. """
 
-    def __init__(self, name, input, path, out_path, sim_path, sim_script, sim_outdir):
+    def __init__(self, name, input, path, out_path, sim_path, sim_script, sim_outdir, overwrite):
         self.name = name
         self.input = input
         self.path = path
@@ -22,13 +25,16 @@ class Benchmark:
         self.sim_path = sim_path
         self.sim_script = sim_script
         self.sim_outdir = sim_outdir
+        self.overwrite = overwrite
 
-        self.out_file = "cycles.txt"
-        self.bench_exec = "a.out"
+        self.out_file = config.benchmark["out_file"]
+        self.out_ext = config.benchmark["out_ext"]
+        self.out_filename = "{}.{}".format(self.out_file, self.out_ext)
+        self.bench_exec = config.benchmark["bench_exec"]
 
         self.results = {}
 
-    def run(self, sim_flags, quiet=False, debug=False):
+    def run(self, sim_flags, debug=False):
         """
         Generate input file for benchmark, compile, run and append execution
         time to output file
@@ -44,11 +50,10 @@ class Benchmark:
         else:
             output = open(devnull, "w")
 
-        if not quiet:
-            print "-------------------------"
-            print "Running benchmark '{}'".format(self.name)
-            for input_name, input_type in self.input:
-                print "{} ({})".format(input_name, type_str(input_type[0]))
+        print "-------------------------"
+        print "Running benchmark '{}'".format(self.name)
+        for input_name, input_type in self.input:
+            print "{} ({})".format(input_name, type_str(input_type[0]))
 
         for input_name, input_description in self.input:
             # Create generator for input, input_description tuple:
@@ -62,8 +67,7 @@ class Benchmark:
                 input = Input(input_type, input_size=input_description[1])
             input_gen = input.gen_input()
 
-            if not quiet:
-                print "\n",
+            print "\n",
 
             # Loop over generated input values
             for input_val in input_gen:
@@ -73,9 +77,8 @@ class Benchmark:
                 if input_type == Types.uniquearray or input_type == Types.array:
                     input_arg["size"] = input_description[1]
 
-                if not quiet:
-                    sys.stdout.write("\r{}: {}".format(input_name, input_val))
-                    sys.stdout.flush()
+                sys.stdout.write("\r{}: {}".format(input_name, input_val))
+                sys.stdout.flush()
 
                 # Generate input file
                 cmd = "{} --input '{}'".format(
@@ -104,13 +107,11 @@ class Benchmark:
                 if sim_count % 25 == 0:
                     self.write_output()
 
+        print "\nDone, ran {} simulations".format(sim_count)
+        print "-------------------------"
+
+        self.clean_output()
         self.write_output()
-
-        if not quiet:
-            print "\nDone, ran {} simulations".format(sim_count)
-            print "-------------------------"
-
-        return True
 
     def extract_cycles(self):
         """
@@ -128,27 +129,35 @@ class Benchmark:
         """
         Write results to file
         """
-        with open(join(self.out_path, self.out_file), "w") as f:
+        with open(join(self.out_path, self.out_filename), "w") as f:
             f.write("cycles,frequency\n")
             for cycles, freq in self.results.items():
                 f.write("{},{}\n".format(cycles, freq))
+            print "Output saved to '{}'".format(join(self.out_path, self.out_filename))
 
     def init_output(self):
         """
-        Initializate output directory
+        Initializate output directory, backup any previous results if directory
+        not empty if overwrite flag is not set
         """
-        self.clear_output()
         try:
             mkdir(self.out_path)
         except:
-            pass
+            out_file = join(self.out_path, self.out_filename)
+            if isfile(out_file):
+                if self.overwrite:
+                    print "Overwriting previous output file '{}'".format(out_file)
+                else:
+                    # Rename previous output file, append timestamp
+                    new_filename = "{}_{}.{}".format(self.out_file, int(time.time()), self.out_ext)
+                    rename(out_file, join(self.out_path, new_filename))
+                    print "Backing up previous output file '{}' as '{}'".format(out_file, join(self.out_path, new_filename))
 
-    def clear_output(self):
+    def clean_output(self):
         """
-        Remove benchmark output directory and contents
+        Remove gem5 simulator output
         """
         try:
             rmtree(join(self.out_path, self.sim_outdir), ignore_errors=False)
-            os.remove(self.out_path, self.out_file)
         except:
-            print "Unable to clear output directory for '{}' benchmark, will overwrite existing files".format(self.name)
+            print "Warning: unable to remove gem5 output directory '{}'".format(join(self.out_path, self.sim_outdir))
