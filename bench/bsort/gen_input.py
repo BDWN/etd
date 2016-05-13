@@ -10,7 +10,7 @@ f = open(join(dirname(realpath(__file__)), "init.c"), "w")
 
 t = Template(
 """
-#define bsort_SIZE $size
+#define bsort_SIZE $a_1_size
 
 static int bsort_Array[ bsort_SIZE ];
 

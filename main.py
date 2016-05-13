@@ -16,8 +16,8 @@ from os.path import join
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--nosim", action="store_true", help="do not perform benchmarks, only plot results")
     parser.add_argument("-o", "--overwrite", action="store_true", help="force overwriting of any previous output")
-    parser.add_argument("-n", "--nosim", action="store_true", help="do not simulate benchmarks, only plot results")
     parser.add_argument("-d", "--debug", action="store_true", help="show compilation and simulator output")
     parser.add_argument("bench", type=str, help="name of benchmark")
     args = parser.parse_args()
@@ -39,6 +39,6 @@ if __name__ == '__main__':
                       args.overwrite)
 
     if not args.nosim:
-        bench.run(config.gem5["sim_flags"], debug=args.debug)
+        bench.run(config.gem5["script_args"], debug=args.debug)
 
     etd.plot_etd("output/{}/cycles.csv".format(args.bench), out_path="output/{}/".format(args.bench), name=args.bench, show=True)

@@ -28,7 +28,7 @@ class Input:
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def gen_input(self):
+    def generator(self):
         if self.input_type == Types.int:
             return self.gen_ints()
         elif self.input_type == Types.array:

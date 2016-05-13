@@ -12,14 +12,14 @@ from os.path import join, isfile
 def plot_etd(data_file, out_path=None, name=None, show=False):
 
     if not isfile(data_file):
-        print "File '{}' not found".format(data_file)
+        print "Error plotting ETD, '{}' not found".format(data_file)
 
     else:
         try:
             data = np.genfromtxt(data_file, dtype="int64,float32", delimiter=",",
                                  names=["cycles", "frequency"], skip_header=1)
         except:
-            print "Invalid data file '{}'".format(data_file)
+            print "Error plotting ETD, invalid data file '{}'".format(data_file)
             return
 
         # Sort and normalize data (divide by total number of measurements)
@@ -29,9 +29,9 @@ def plot_etd(data_file, out_path=None, name=None, show=False):
 
         ax = plt.subplot(111)
         if name:
-            ax.set_title("Execution time distribution '{}' ({} measurements)".format(name, int(num_measurements)))
+            ax.set_title("Execution time distribution '{}' ({} data points)".format(name, int(num_measurements)))
         else:
-            ax.set_title("Execution time distribution ({} measurements)".format(int(num_measurements)))
+            ax.set_title("Execution time distribution ({} data points)".format(int(num_measurements)))
         ax.set_xlabel("Execution time (cycles)")
         ax.set_ylabel("Relative frequency")
         ax.set_xlim(min(data["cycles"]) - 0.1*(min(data["cycles"])), max(data["cycles"]) + 0.1*(max(data["cycles"])))

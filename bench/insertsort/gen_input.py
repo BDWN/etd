@@ -10,7 +10,7 @@ f = open(join(dirname(realpath(__file__)), "init.c"), "w")
 
 t = Template(
 """
-#define ARRAY_SIZE $size
+#define ARRAY_SIZE $a_1_size
 
 unsigned int insertsort_a[ARRAY_SIZE];
 

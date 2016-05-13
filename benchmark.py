@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 import time
+import itertools
 
 import config
 
@@ -34,7 +35,7 @@ class Benchmark:
 
         self.results = {}
 
-    def run(self, sim_flags, debug=False):
+    def run(self, script_args, debug=False):
         """
         Generate input file for benchmark, compile, run and append execution
         time to output file
@@ -55,57 +56,65 @@ class Benchmark:
         for input_name, input_type in self.input:
             print "{} ({})".format(input_name, type_str(input_type[0]))
 
+        # Input values with generators, list of (name, type, generator) tuples
+        inputs = []
+        # Array sizes have no generators, treated seperately
+        array_sizes = {}
+
         for input_name, input_description in self.input:
-            # Create generator for input, input_description tuple:
+            # input_description tuple:
             # int:          (Types.int, lower_bound, upper_bound)
             # uniquearray:  (Types.uniquearray, size)
             input_type = input_description[0]
             if input_type == Types.int:
                 input = Input(input_type, lower_bound=input_description[1],
-                                                    upper_bound=input_description[2])
+                                          upper_bound=input_description[2])
             elif input_type == Types.uniquearray or input_type == Types.array:
                 input = Input(input_type, input_size=input_description[1])
-            input_gen = input.gen_input()
+                # Prepare additional input value for array size
+                array_sizes[input_name + config.benchmark["array_size_suffix"]] = input_description[1]
+            inputs.append((input_name, input_type, input.generator()))
 
-            print "\n",
+        print "\n",
 
-            # Loop over generated input values
-            for input_val in input_gen:
+        # Iterate over all combinations of input values
+        for input_vals in itertools.product(*zip(*inputs)[2]):
 
-                # Construct command line argument for gen_input.py
-                input_arg = {input_name:input_val}
-                if input_type == Types.uniquearray or input_type == Types.array:
-                    input_arg["size"] = input_description[1]
+            # Construct dict for inputs with input names as keys
+            inputs_dict = dict(zip(zip(*inputs)[0], input_vals))
+            # Add array sizes to inputs
+            inputs_dict.update(array_sizes)
 
-                sys.stdout.write("\r{}: {}".format(input_name, input_val))
-                sys.stdout.flush()
+            input_str = ", ".join("{} = {}".format(name, val) for (name, val) in inputs_dict.iteritems())
+            sys.stdout.write("\r{}".format(input_str))
+            sys.stdout.flush()
 
-                # Generate input file
-                cmd = "{} --input '{}'".format(
-                        join(self.path, "gen_input.py"),
-                        json.dumps(input_arg))
-                subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+            # Generate input file
+            cmd = "{} --input '{}'".format(
+                    join(self.path, "gen_input.py"),
+                    json.dumps(inputs_dict))
+            subprocess.call(cmd, shell=True, stdout=output, stderr=output)
 
-                # Compile benchmark with input, requires Makefile
-                cmd = "make clean -C {0} && make -C {0}".format(self.path)
-                subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+            # Compile benchmark with input, requires Makefile
+            cmd = "make clean -C {0} && make -C {0}".format(self.path)
+            subprocess.call(cmd, shell=True, stdout=output, stderr=output)
 
-                # Run benchmark
-                cmd = "{} -q --outdir {} {} -c {} {}".format(
-                        self.sim_path,
-                        join(self.out_path, self.sim_outdir),
-                        join(self.sim_script),
-                        join(self.path, self.bench_exec),
-                        sim_flags)
-                subprocess.call(cmd, shell=True, stdout=output, stderr=output)
-                sim_count = sim_count + 1
+            # Run benchmark
+            cmd = "{} -q --outdir {} {} -c {} {}".format(
+                    self.sim_path,
+                    join(self.out_path, self.sim_outdir),
+                    join(self.sim_script),
+                    join(self.path, self.bench_exec),
+                    script_args)
+            subprocess.call(cmd, shell=True, stdout=output, stderr=output)
+            sim_count = sim_count + 1
 
-                cycles = self.extract_cycles()
-                self.results[cycles] = self.results.get(cycles, 0) + 1
+            cycles = self.extract_cycles()
+            self.results[cycles] = self.results.get(cycles, 0) + 1
 
-                # Periodically write to output file while running
-                if sim_count % 25 == 0:
-                    self.write_output()
+            # Periodically write to output file while running
+            if sim_count % 25 == 0:
+                self.write_output()
 
         print "\nDone, ran {} simulations".format(sim_count)
         print "-------------------------"

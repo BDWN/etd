@@ -22,13 +22,13 @@ gem5 = {
     "script": "se.py",
 
     # Arguments passed to simulator script
-    "sim_flags": "--cpu-type=TimingSimpleCPU \
-                  --caches \
-                  --l1d_size=64kB \
-                  --l1i_size=16kB \
-                  --l2cache \
-                  --l2_size=128kB \
-                  ",
+    "script_args": "--cpu-type=TimingSimpleCPU \
+                    --caches \
+                    --l1d_size=64kB \
+                    --l1i_size=16kB \
+                    --l2cache \
+                    --l2_size=128kB \
+                    ",
 
     # Output directory name for simulator statistics:
     # 'out_path'/'benchmark_name'/'out_dir'/
@@ -44,6 +44,11 @@ benchmark = {
 
     # Filename of benchmark executable, must correspond with filename specified
     # in benchmark Makefile
-    "bench_exec": "a.out"
+    "bench_exec": "a.out",
+
+    # Suffix for array size input value, must be adhered to in gen_input.py for
+    # benchmarks with arrays
+    "array_size_suffix": "_size",
+
 
 }
