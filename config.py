@@ -1,5 +1,3 @@
-# config.py
-
 main = {
 
     # Directory to which all output is saved

@@ -1,11 +1,12 @@
 # benchmarks.py
 # Benchmark specifications
 
+# Input types are defined in input.py
 # Specification format:
 #
 # "name" : { "path" : "path_to_benchmark_folder",
 #            "input": [
-#                          # Ranged input variable specification
+#                          # Ranged input type
 #                          (
 #                            "variable_placeholder_name",
 #                            (input_type,
@@ -19,14 +20,21 @@
 #                             ])
 #                          ),
 #
-#                          # Array input variable specification
+#                          # Array input type
 #                          (
 #                            "variable_placeholder_name",
 #                            (input_type, array_size)
 #                          ),
 #
+#                          # Fixed input type
+#                          (
+#                            "variable_placeholder_name",
+#                            (input_type, value)
+#                          ),
+#
 #                     ]
 # }
+
 
 from input import Types
 from distributions import *

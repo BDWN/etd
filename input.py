@@ -1,7 +1,7 @@
 # input.py
 
-# Defines Input class, contain description of type and link to appropriate
-# generator
+# Defines Input class, contains type, attributes, link to appropriate generator
+# function and possible PMF to describe value distribution
 
 import numpy as np
 import matplotlib.pyplot as plt

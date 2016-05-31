@@ -1,18 +1,17 @@
 # benchmark.py
-# bladiebla
+# Defines Benchmark class, handles creation of Input objects, simulation and
+# storing of resulting data
 
 import json
 import subprocess
 import sys
 import time
-
 import config
 
 from input import Input, Types
 from shutil import rmtree
 from os import mkdir, remove, devnull, rename
 from os.path import join, dirname, realpath, isfile
-
 from input_generators import gen_combs
 
 class Benchmark:
