@@ -22,26 +22,24 @@ def plot_etd(data_file, out_path=None, name=None, show=False):
             print "Error plotting ETD, invalid data file '{}'".format(data_file)
             return
 
-        # Sort and normalize data (divide by total number of measurements)
+        # Sort and normalize data
         data.sort()
-        num_measurements = np.sum(data["frequency"])
-        data["frequency"] /= num_measurements
+        data["frequency"] /= np.sum(data["frequency"])
 
         ax = plt.subplot(111)
         if name:
-            ax.set_title("Execution time distribution '{}' ({} data points)".format(name, int(num_measurements)))
+            ax.set_title("Execution time distribution '{}'".format(name))
         else:
-            ax.set_title("Execution time distribution ({} data points)".format(int(num_measurements)))
+            ax.set_title("Execution time distribution")
         ax.set_xlabel("Execution time (cycles)")
-        ax.set_ylabel("Relative frequency")
+        ax.set_ylabel("Probability")
         ax.set_xlim(min(data["cycles"]) - 0.1*(min(data["cycles"])), max(data["cycles"]) + 0.1*(max(data["cycles"])))
         ax.set_ylim(0, max(data["frequency"]) + 0.1*(max(data["frequency"])))
 
-        # plt.plot(data["cycles"], data["frequency"], color="black", lw=1.0)
-        # plt.fill_between(data["cycles"],data["frequency"], color="grey")
         plt.bar(data["cycles"], data["frequency"], color="blue", lw=2.0)
+
         if out_path:
-            plt.savefig(join(out_path, "etd.png".format(name)))
+            plt.savefig(join(out_path, "{}_etd.png".format(name)))
             print "Execution time distribution plot saved to '{}'".format(join(out_path, "{}_etd.png".format(name)))
         if show:
             plt.show()

@@ -2,11 +2,8 @@
 
 main = {
 
-    # Parent directory containing benchmark source files
-    "bench_path": "bench",
-
     # Directory to which all output is saved
-    "out_path": "output"
+    "out_dir": "output"
 
 }
 
@@ -29,9 +26,10 @@ gem5 = {
                     --l2cache \
                     --l2_size=128kB \
                     ",
+    # "script_args": "--cpu-type=TimingSimpleCPU ",
 
     # Output directory name for simulator statistics:
-    # 'out_path'/'benchmark_name'/'out_dir'/
+    # 'out_dir'/'benchmark_name'/'out_dir'/
     "out_dir": "m5out",
 
 }
@@ -45,10 +43,5 @@ benchmark = {
     # Filename of benchmark executable, must correspond with filename specified
     # in benchmark Makefile
     "bench_exec": "a.out",
-
-    # Suffix for array size input value, must be adhered to in gen_input.py for
-    # benchmarks with arrays
-    "array_size_suffix": "_size",
-
 
 }

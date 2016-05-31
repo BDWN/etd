@@ -5,18 +5,17 @@ import json
 import subprocess
 import sys
 import time
-import itertools
 
 import config
 
-from input import Input, Types, type_str
+from input import Input, Types
 from shutil import rmtree
 from os import mkdir, remove, devnull, rename
 from os.path import join, dirname, realpath, isfile
 
-class Benchmark:
+from input_generators import gen_combs
 
-    """Docstring for Benchmark. """
+class Benchmark:
 
     def __init__(self, name, input, path, out_path, sim_path, sim_script, sim_outdir, overwrite):
         self.name = name
@@ -35,14 +34,48 @@ class Benchmark:
 
         self.results = {}
 
+        print "-------------------------"
+        print "Benchmark '{}', {} input variable(s)".format(self.name, len(self.input))
+
+        self.init_inputs()
+
+    def init_inputs(self):
+        """
+        Consolidate input specification, create Input objects
+        """
+        self.inputs = []
+
+        print "-------------------------"
+        print "Initializing input ".format(self.name)
+        print "\n",
+
+        for input_name, input_description in self.input:
+
+            if input_description[0] in Types.ranged:
+                input = Input(input_name, input_description[0],
+                              lower_bound=input_description[1],
+                              upper_bound=input_description[2],
+                              dist=input_description[3],
+                              plot_path=self.out_path)
+                self.inputs.append(input)
+
+            elif input_description[0] in Types.arrays:
+                input = Input(input_name, input_description[0], size=input_description[1])
+                self.inputs.append(input)
+
+            elif input_description[0] in Types.fixed:
+                input = Input(input_name, input_description[0], val=input_description[1])
+                self.inputs.append(input)
+
+        print "-------------------------"
+
+
     def run(self, script_args, debug=False):
         """
-        Generate input file for benchmark, compile, run and append execution
-        time to output file
+        Generate input file for benchmark, compile, run and store results
         """
 
         self.init_output()
-
         sim_count = 0
 
         # Show subprocess call output if debug flag is set
@@ -52,39 +85,20 @@ class Benchmark:
             output = open(devnull, "w")
 
         print "-------------------------"
-        print "Running benchmark '{}'".format(self.name)
-        for input_name, input_type in self.input:
-            print "{} ({})".format(input_name, type_str(input_type[0]))
-
-        # Input values with generators, list of (name, type, generator) tuples
-        inputs = []
-        # Array sizes have no generators, treated seperately
-        array_sizes = {}
-
-        for input_name, input_description in self.input:
-            # input_description tuple:
-            # int:          (Types.int, lower_bound, upper_bound)
-            # uniquearray:  (Types.uniquearray, size)
-            input_type = input_description[0]
-            if input_type == Types.int:
-                input = Input(input_type, lower_bound=input_description[1],
-                                          upper_bound=input_description[2])
-            elif input_type == Types.uniquearray or input_type == Types.array:
-                input = Input(input_type, input_size=input_description[1])
-                # Prepare additional input value for array size
-                array_sizes[input_name + config.benchmark["array_size_suffix"]] = input_description[1]
-            inputs.append((input_name, input_type, input.generator()))
+        print "Running benchmark"
 
         print "\n",
 
+        input_names = [input_var.name for input_var in self.inputs]
+        generators = [input_var.generator() for input_var in self.inputs]
+        pmfs = [input_var.pmf for input_var in self.inputs]
+
         # Iterate over all combinations of input values
-        for input_vals in itertools.product(*zip(*inputs)[2]):
+        for input_vals in gen_combs(generators):
 
-            # Construct dict for inputs with input names as keys
-            inputs_dict = dict(zip(zip(*inputs)[0], input_vals))
-            # Add array sizes to inputs
-            inputs_dict.update(array_sizes)
+            inputs_dict = dict(zip(input_names, input_vals))
 
+            # Print current input combination
             input_str = ", ".join("{} = {}".format(name, val) for (name, val) in inputs_dict.iteritems())
             sys.stdout.write("\r{}".format(input_str))
             sys.stdout.flush()
@@ -110,14 +124,23 @@ class Benchmark:
             sim_count = sim_count + 1
 
             cycles = self.extract_cycles()
-            self.results[cycles] = self.results.get(cycles, 0) + 1
+
+            # Determine weight factor, i.e. combined probability, assumes
+            # input values are statistically independent
+            weight = 1.
+            for i in range(len(input_vals)):
+                weight *= pmfs[i](input_vals[i])
+
+            # Only store measurement result if probability is bigger than 0.0
+            if weight > 0.:
+                self.results[cycles] = self.results.get(cycles, 0) + weight
 
             # Periodically write to output file while running
             if sim_count % 25 == 0:
                 self.write_output()
 
         print "\nDone, ran {} simulations".format(sim_count)
-        print "-------------------------"
+        print "-------------------------\n"
 
         self.clean_output()
         if self.write_output():
@@ -133,20 +156,8 @@ class Benchmark:
         stats = []
         with open(join(self.out_path, self.sim_outdir, "stats.txt"), "r") as f:
             stats.extend(f.readline() for i in range(4))
-
         # Return cycle count
         return stats[3].split()[1]
-
-    def write_output(self):
-        """
-        Write results to file
-        """
-        with open(join(self.out_path, self.out_filename), "w") as f:
-            f.write("cycles,frequency\n")
-            for cycles, freq in self.results.items():
-                f.write("{},{}\n".format(cycles, freq))
-            return True
-        return False
 
     def init_output(self):
         """
@@ -162,9 +173,22 @@ class Benchmark:
                     print "Overwriting previous output file '{}'".format(out_file)
                 else:
                     # Rename previous output file, append timestamp
-                    new_filename = "{}_{}.{}".format(self.out_file, int(time.time()), self.out_ext)
+                    new_filename = "{}_{}.{}".format(self.out_file,
+                            int(time.time()), self.out_ext)
                     rename(out_file, join(self.out_path, new_filename))
-                    print "Backing up previous output file '{}' as '{}'".format(out_file, join(self.out_path, new_filename))
+                    print "Backing up previous output file '{}' as '{}'".format(
+                            out_file, join(self.out_path, new_filename))
+
+    def write_output(self):
+        """
+        Write results to file
+        """
+        with open(join(self.out_path, self.out_filename), "w") as f:
+            f.write("cycles,frequency\n")
+            for cycles, freq in self.results.items():
+                f.write("{},{}\n".format(cycles, freq))
+            return True
+        return False
 
     def clean_output(self):
         """

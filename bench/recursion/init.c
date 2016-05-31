@@ -1,4 +1,4 @@
 
 void recursion_init() {
-    recursion_input = 26;
+    recursion_input = 19;
 }
