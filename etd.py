@@ -38,6 +38,15 @@ def plot_etd(data_file, out_path=None, name=None, show=False):
 
         plt.bar(data["cycles"], data["frequency"], color="blue", lw=2.0)
 
+        bcet = min(data["cycles"])
+        wcet = max(data["cycles"])
+        spread = wcet - bcet
+        mean = np.mean(data["cycles"])
+        weighted_mean = np.average(data["cycles"], weights=data["frequency"])
+        median = np.median(data["cycles"])
+        text = "WCET: {:.3g}\nBCET: {:.3g}\n\nMean: {:.3g}\nWeighted mean: {:.3g}\nMedian: {:.3g}\nSpread: {:.3g}".format(wcet, bcet, mean, weighted_mean, median, spread)
+        plt.text(0.05, 0.95, text, transform=ax.transAxes, fontsize=12, verticalalignment="top", bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5))
+
         if out_path:
             plt.savefig(join(out_path, "{}_etd.png".format(name)))
             print "Execution time distribution plot saved to '{}'".format(join(out_path, "{}_etd.png".format(name)))
@@ -47,7 +56,9 @@ def plot_etd(data_file, out_path=None, name=None, show=False):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("name", type=str, help="output file")
+    parser.add_argument("out_path", type=str, help="output file")
     parser.add_argument("file", type=str, help="input csv file (cycles,frequency)")
     args = parser.parse_args()
 
-    plot_etd(args.file, show=True)
+    plot_etd(args.file, name=args.name, out_path=args.out_path, show=True)
