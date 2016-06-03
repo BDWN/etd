@@ -1,7 +1,9 @@
 # benchmarks.py
-# Benchmark specifications
+# Benchmark input specifications
 
 # Input types are defined in input.py
+# Distributions are defined in distributions.py
+#
 # Specification format:
 #
 # "name" : { "path" : "path_to_benchmark_folder",
