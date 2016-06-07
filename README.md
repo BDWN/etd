@@ -8,13 +8,30 @@ Framework for deriving execution time distributions using the *gem5* simulator.
 * [gem5](http://gem5.org)
 * Cross compiler for target hardware architecture (e.g. GCC)
 
-## Configuration
+### Configuration
 After having successfully installed all required software and downloading the
 framework, make sure to adjust the `config.py` file before attempting to
 run the framework. This file contains global settings, gem5 configurations and
 framework output settings.
 
-## Example benchmark specification
+### Running the framework
+The framework can be run by executing `main.py`. It will run the
+simulations, save the results and plot both the input value probability
+distributions and the derived execution time distribution.
+
+```
+usage: main.py [-h] [-n] [-o] [-d] bench
+positional arguments:
+  bench            name of benchmark
+
+optional arguments:
+  -h, --help       show this help message and exit
+  -n, --nosim      do not run simulations, only plot previous results
+  -o, --overwrite  force overwriting of any previous output
+  -d, --debug      show compilation and simulator output
+```
+
+# Example benchmark specification
 In order for a benchmark to be used by the framework the following points have
 to addresses:
 
@@ -221,21 +238,4 @@ In general, an input specification must adhere to the following format:\\
 
                     ]
 }
-```
-
-### Running the framework
-The framework can be run by executing `main.py`. It will run the
-simulations, save the results and plot both the input value probability
-distributions and the derived execution time distribution.
-
-```
-usage: main.py [-h] [-n] [-o] [-d] bench
-positional arguments:
-  bench            name of benchmark
-
-optional arguments:
-  -h, --help       show this help message and exit
-  -n, --nosim      do not run simulations, only plot previous results
-  -o, --overwrite  force overwriting of any previous output
-  -d, --debug      show compilation and simulator output
 ```
