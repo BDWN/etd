@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--overwrite", action="store_true", help="force overwriting of any previous output")
     parser.add_argument("-d", "--debug", action="store_true", help="show compilation and simulator output")
-    parser.add_argument("-p", "--processes", type=positive_int, default=8, help="show compilation and simulator output")
+    parser.add_argument("-p", "--processes", type=positive_int, default=1, help="number of worker processed to spawn")
     parser.add_argument("bench", type=str, help="name of benchmark")
     args = parser.parse_args()
 
