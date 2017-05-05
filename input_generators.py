@@ -2,7 +2,38 @@
 # Generator functions for various types of input
 
 import numpy as np
+import math
 import itertools
+
+def iround(x):
+    return int(round(x) - .5) + (x > 0)
+
+def tr(i_min, i_max):
+    """
+    Traversal function, attempts to evenly traverse [i_min, i_max) by always
+    hitting the middle of the univisited space
+    """
+    if i_max - i_min == 1:
+        yield i_min
+        raise StopIteration
+
+    # Yield corner cases first
+    yield i_min
+    yield i_max - 1
+
+    n = i_max - i_min - 1
+
+    for i in range(1, 2**(math.ceil(math.log(n,2)))):
+        logValue = np.floor(np.log2(i))
+        expValue = 2**(logValue)
+        expValueInc = 2**(logValue + 1)
+        offset = 1.0/expValueInc
+        step = (i - expValue)/expValue
+        factor = offset + step
+        range2N = 2**(np.ceil(np.log2(n)))
+        aux = iround(range2N*factor)
+        if (aux <= n - 1):
+            yield int(i_min + aux)
 
 def gen_combs(gens, pos=0):
     """
@@ -18,9 +49,9 @@ def gen_combs(gens, pos=0):
     gen = gens[pos][0](*gens[pos][1])
     while True:
         try:
-            yield comb + next_gen.next()
+            yield comb + next_gen.__next__()
         except (StopIteration, AttributeError):
-            comb = [gen.next(),]
+            comb = [gen.__next__(),]
             if pos < len(gens) - 1:
                 next_gen = gen_combs(gens, pos+1)
             else:
@@ -30,8 +61,15 @@ def gen_int(lower_bound, upper_bound):
     """
     Generator for ints from lower to upper bound
     """
-    for i in xrange(lower_bound, upper_bound):
+    for i in range(lower_bound, upper_bound):
         yield i
+
+def gen_int_tr(lower_bound, upper_bound):
+    """
+    Generator for int from lower to upper bound, implements traversal function
+    to generate better coverage
+    """
+    return tr(lower_bound, upper_bound)
 
 def gen_float(lower_bound, upper_bound, double=False):
     """
@@ -74,3 +112,40 @@ def gen_int_fixed(val):
     Return fixed integer
     """
     yield val
+
+def gen_bool():
+    """
+    Return boolean values
+    """
+    yield "true"
+    yield "false"
+
+def gen_bool_fixed(val):
+    """
+    Return fixed boolean
+    """
+    if val:
+        yield "true"
+    else:
+        yield "false"
+
+def gen_int_array_unique(size, i_min, i_max):
+    """
+    Returns all permutations for an array with unique values ranging from
+    0 to size, returned as comma seperated string
+    """
+    for i in tr(i_min, i_max):
+        arrayList = []
+        arrayList.extend(range(0,size))
+        resultList = []
+        rMax = math.factorial(size)
+        counter = size
+        while (counter > 0 and i < rMax):
+            divFactor = math.factorial(counter-1)
+            (div, mod) = divmod(i,divFactor)
+            i = mod
+            newElement = arrayList[div]
+            resultList.append(newElement)
+            arrayList = arrayList[:div] + arrayList[div+1 :]
+            counter = counter - 1
+        yield ",".join(map(str, resultList))

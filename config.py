@@ -8,13 +8,13 @@ main = {
 gem5 = {
 
     # Gem5 simulator main path
-    "path": "/home/bdwn/uni/y3/thesis/gem5/",
+    "path": "/home/bdwn/progs/gem5/",
 
     # Gem5 simulator binary
-    "exec": "/home/bdwn/uni/y3/thesis/gem5/build/ARM/gem5.opt",
+    "exec": "/home/bdwn/progs/gem5/build/ARM/gem5.opt",
 
     # Script with which to run Gem5
-    "script": "se.py",
+    "script": "/home/bdwn/progs/gem5/configs/example/se.py",
 
     # Arguments passed to simulator script
     "script_args": "--cpu-type=TimingSimpleCPU \
@@ -24,6 +24,7 @@ gem5 = {
                     --l2cache \
                     --l2_size=128kB \
                     ",
+
     # "script_args": "--cpu-type=TimingSimpleCPU ",
 
     # Output directory name for simulator statistics:
@@ -32,7 +33,17 @@ gem5 = {
 
 }
 
+input = {
+
+    # Max data points to plot pmf of floats with
+    "pmf_n" : 1000,
+
+}
+
 benchmark = {
+
+    # Benchmark source files are copied to a subdirectory for compilation
+    "copy_prefix" : "__tmp",
 
     # Resulting output file created by running benchmark
     "out_file": "cycles",
@@ -41,5 +52,9 @@ benchmark = {
     # Filename of benchmark executable, must correspond with filename specified
     # in benchmark Makefile
     "bench_exec": "a.out",
+
+    # Update rates for writing to output file and updating live plot
+    "write_interval": 5,
+    "plot_interval": 3,
 
 }
