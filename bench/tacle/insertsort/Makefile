@@ -1,6 +1,6 @@
 CC=aarch64-linux-gnu-gcc
 CFLAGS=-march=armv8-a -static
-OBJS=../m5op_arm_A64.o
+OBJS=include/m5op_arm_A64.o
 
 all: insertsort
 

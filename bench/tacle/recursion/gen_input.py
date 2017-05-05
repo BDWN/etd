@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import json
 import argparse
@@ -10,16 +10,8 @@ f = open(join(dirname(realpath(__file__)), "init.c"), "w")
 
 t = Template(
 """
-#define bsort_SIZE $a_1_size
-
-static int bsort_Array[ bsort_SIZE ];
-
-static int bsort_Values[ bsort_SIZE ] = { $a_1 };
-
-void bsort_init( void ) {
-    for (int i = 0; i < bsort_SIZE; i++) {
-        bsort_Array[i] = bsort_Values[i];
-    }
+void recursion_init() {
+    recursion_input = $i_1;
 }
 """)
 

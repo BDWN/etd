@@ -11,7 +11,7 @@
  *         http://www.mrtc.mdh.se/projects/wcet/wcet_bench/fac/fac.c
  */
 
-#include "../m5op.h"
+#include "include/m5op.h"
 
 int fac_fac( int n );
 void fac_init();

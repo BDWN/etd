@@ -12,7 +12,7 @@
  * Derived from: SNU-RT Benchmark Suite for WCET analysis by Sung-Soo Lim
  */
 
-#include "../m5op.h"
+#include "include/m5op.h"
 
 void insertsort_initialize(unsigned int* array);
 void insertsort_init(void);

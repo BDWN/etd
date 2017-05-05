@@ -11,7 +11,7 @@
  *         http://www.mrtc.mdh.se/projects/wcet/wcet_bench/recursion/recursion.c
  */
 
-#include "../m5op.h"
+#include "include/m5op.h"
 
 int recursion_result;
 int recursion_input;

@@ -11,7 +11,7 @@
  *         http://www.mrtc.mdh.se/projects/wcet/wcet_bench/prime/prime.c
  */
 
-#include "../m5op.h"
+#include "include/m5op.h"
 
 unsigned char prime_divides ( unsigned int n, unsigned int m );
 unsigned char prime_even ( unsigned int n );

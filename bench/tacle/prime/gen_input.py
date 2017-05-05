@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import json
 import argparse
@@ -10,8 +10,8 @@ f = open(join(dirname(realpath(__file__)), "init.c"), "w")
 
 t = Template(
 """
-void recursion_init() {
-    recursion_input = $i_1;
+void prime_init () {
+    x = $i_1;
 }
 """)
 

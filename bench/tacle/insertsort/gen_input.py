@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import json
 import argparse
@@ -10,8 +10,19 @@ f = open(join(dirname(realpath(__file__)), "init.c"), "w")
 
 t = Template(
 """
-void prime_init () {
-    x = $i_1;
+#define ARRAY_SIZE $a_1_size
+
+unsigned int insertsort_a[ARRAY_SIZE];
+
+void insertsort_initialize(unsigned int* array) {
+    register int i;
+    for ( int i = 0; i < ARRAY_SIZE; i++ )
+        insertsort_a[i] = array[i];
+}
+
+void insertsort_init() {
+    unsigned int a[ARRAY_SIZE] = { $i_1, $i_2, $i_3, $i_4 };
+    insertsort_initialize(a);
 }
 """)
 

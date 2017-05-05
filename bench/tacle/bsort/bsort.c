@@ -11,7 +11,7 @@
  *         http://www.mrtc.mdh.se/projects/wcet/wcet_bench/bsort100/bsort100.c
  */
 
-#include "../m5op.h"
+#include "include/m5op.h"
 
 void bsort_init( void );
 void bsort_main( void );
