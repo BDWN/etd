@@ -1,12 +1,25 @@
-# Execution Time Distribution Framework
-Framework for deriving execution time distributions using the *gem5* simulator.
+# EDiFy: An Execution time Distribution Finder
+A Python framework for deriving execution time distributions using the [gem5](http://gem5.org) simulator.
 
 ### Requirements
-* Python 2
+* Python 3
     * Numpy
     * Matplotlib
 * [gem5](http://gem5.org)
 * Cross compiler for target hardware architecture (e.g. GCC)
+
+### Notes
+Please note that this framework has only been tested on Linux, although it should run on other platforms supported by the *gem5* simulator.
+As is, the framework is set up to compile and run benchmarks targetting the AARCH64 architecture (64bit ARM).
+The framework comes with a set of modified benchmarks taken from the [TACLeBench](http://www.tacle.eu/index.php/activities/taclebench) benchmark suite.
+
+### Installation
+Since this framework relies on the *gem5* simulator, please make sure you have it installed and built (a guide can be found on their website).
+The required Python modules can either be installed manually via your system package manager, or using `pip`:
+
+`pip install -r requirements.txt`
+
+Install the framework by cloning this repository.
 
 ### Configuration
 After having successfully installed all required software and downloading the
@@ -20,15 +33,17 @@ simulations, save the results and plot both the input value probability
 distributions and the derived execution time distribution.
 
 ```
-usage: main.py [-h] [-n] [-o] [-d] bench
+usage: main.py [-h] [-o] [-d] [-p PROCESSES] bench
+
 positional arguments:
-  bench            name of benchmark
+  bench                 name of benchmark
 
 optional arguments:
-  -h, --help       show this help message and exit
-  -n, --nosim      do not run simulations, only plot previous results
-  -o, --overwrite  force overwriting of any previous output
-  -d, --debug      show compilation and simulator output
+  -h, --help            show this help message and exit
+  -o, --overwrite       force overwriting of any previous output
+  -d, --debug           show compilation and simulator output
+  -p PROCESSES, --processes PROCESSES
+                        number of worker processed to spawn
 ```
 
 # Example benchmark specification
@@ -62,7 +77,7 @@ int main() {
 ### Detaching input variable initialization
 First, make sure the benchmark is contained in its own directory:
 
-`/path/to/etd_framework/bench/test_bench`
+`/<path_to_framework>/bench/test_bench`
 
 Now, move the initialization of desired input variables in the source code to a
 new file `init.c` and include it in the main source file. Note
@@ -70,13 +85,13 @@ that it is not required to assign values to variables in the `init.c`
 file since these will be injected by the framework. However, it can be useful
 to assign some test values to ensure the program still behaves as expected.
 
-The next step is to include the `m5op.h` file (provided with the framework,
-located in the `bench` directory) and prepend the main benchmark computation
+The next step is to include the `m5op.h` file (supplied with the framework in the example benchmarks,
+located in the `bench/tacle/<benchmark>/include` directory) and prepend the main benchmark computation
 with a call to reset the simulator stats. See the example below:
 
-
+bench.c:
 ```
-#include "m5op.h"
+#include "include/m5op.h"
 #include "init.c"
 
 int main() {
@@ -86,10 +101,12 @@ int main() {
     for (int i = 0; i < x * y; i++) {
         z += i;
     }
+    m5_exit(0);
     return 0;
 }
 ```
 
+init.c:
 ```
 int x;
 int y;
@@ -103,12 +120,12 @@ void benchmark_init() {
 ### Creating gen_input.py file
 Copy one of the existing `gen_input.py` files from one of the example
 benchmarks
-directory (`/path/to/etd_framework/bench/xx/gen_input.py`) to
+directory (`<path_to_framework>/bench/tacle/<bench>/gen_input.py`) to
 the `test_bench` directory and supply it the contents of the
 `init.c` as follows:
 
 ```
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import json
 import argparse
@@ -147,27 +164,27 @@ Makefile below:
 ```
 CC=aarch64-linux-gnu-gcc
 CFLAGS=-march=armv8-a -static
-OBJS=../m5op_arm_A64.o
+OBJS=include/m5op_arm_A64.o
 
-all: fac
+all: bench
 
-fac: fac.o
-    $(CC) $(CFLAGS) -o a.out fac.o $(OBJS)
+bench: bench.o
+    $(CC) $(CFLAGS) -o a.out bench.o $(OBJS)
 
-fac.o: fac.c
-    $(CC) $(CFLAGS) -c fac.c
+bench.o: bench.c
+    $(CC) $(CFLAGS) -c bench.c
 
 clean:
     -rm -f *.o
     -rm -f a.out
 ```
 
-The `m5op.arm.A64.o` file is provided with both the framework (in the `bench`
-directory) and can also be found in the gem5 working directory.
+The `m5op.arm.A64.o` file is provided with the framework and can be found in the `bench/tacle/<benchmark>/include` directory.
+Note that you can also compile it yourself, the source code is provided in the `<gem5_directory>/util/m5` directory.
 
 ### Input specification
 After having properly modified the original benchmark source code and setting
-up the appropriate `gen_input.py` file, the benchmark input specification can
+up the appropriate `gen_input.py` file, the benchmark input specification must
 be added to the `benchmarks.py` file as follows:
 
 ```
@@ -176,7 +193,7 @@ from distributions import *
 
 benchmarks = {
     ...
-    "test_bench" : { "path" : "/path/to/etd_framework/bench/test_bench/",
+    "test_bench" : { "path" : "<path_to_framework>/bench/test_bench/",
                      "input": [
                                    ("x", (Types.int, 1, 20,
                                      [
