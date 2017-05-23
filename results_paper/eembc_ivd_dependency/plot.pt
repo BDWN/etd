@@ -1,0 +1,76 @@
+set terminal pdf size 5,2.5 dashed
+set output 'bitmnp01.pdf'
+
+set bar 1.000000
+set style data lines
+
+set xtics nomirror out
+set ytics nomirror out
+set border 3
+
+set ylabel "Likelihood"
+set xlabel "Execution Time (μs)"
+
+
+set format x "%g"
+set xtics rotate by -45
+
+set datafile separator ","
+
+set key autotitle columnhead
+
+plot  'bitmnp01_gauss/cycles_normalized.csv' using ($1/1000000):2 title "Normal IVD" lw 4 dt 3 lc 0, \
+      'bitmnp01_uni/cycles_normalized.csv' using ($1/1000000):2 title  "Uniform IVD" lw 4 dt 4 lc 7, \
+
+
+
+set terminal pdf size 5,2.5 dashed
+set output 'pntrch01.pdf'
+
+set bar 1.000000
+set style data lines
+
+set xtics nomirror out
+set ytics nomirror out
+set border 3
+
+set ylabel "Likelihood"
+set xlabel "Execution Time (μs)"
+
+
+set format x "%g"
+set xtics rotate by -45
+
+set datafile separator ","
+
+set key autotitle columnhead
+
+plot  'pntrch01_gauss/cycles_normalized.csv' using ($1/1000000):2 title "Normal IVD" lw 4 dt 3 lc 0, \
+      'pntrch01_uni/cycles_normalized.csv' using ($1/1000000):2 title  "Uniform IVD" lw 4 dt 4 lc 7, \
+
+
+
+
+set terminal pdf size 5,2.5 dashed
+set output 'tblook01.pdf'
+
+set bar 1.000000
+set style data lines
+
+set xtics nomirror out
+set ytics nomirror out
+set border 3
+
+set ylabel "Likelihood"
+set xlabel "Execution Time (μs)"
+
+
+set format x "%g"
+set xtics rotate by -45
+
+set datafile separator ","
+
+set key autotitle columnhead
+
+plot  'tblook01_gauss/cycles_normalized.csv' using ($1/1000000):2 title "Normal IVD" lw 4 dt 3 lc 0, \
+      'tblook01_uni/cycles_normalized.csv' using ($1/1000000):2 title  "Uniform IVD" lw 4 dt 4 lc 7, \

@@ -1,0 +1,101 @@
+set terminal pdf size 5,2.5 dashed
+set output 'anytimeEval/etd.pdf'
+
+set bar 1.000000
+set style data lines
+
+set xtics nomirror out
+set ytics nomirror out
+set border 3
+
+set ylabel "Likelihood"
+set xlabel "Execution Time (ns)"
+
+set key at 3,0.2
+set key font ",10"
+
+set format x "%g"
+set xtics rotate by -45
+
+set datafile separator ","
+
+set key autotitle columnhead
+
+plot  'anytimeEval/cycles/cyclesFinalSort.csv' using ($1/10):2 title "exact ETD" lw 4 dt 1 lc 0, \
+      'anytimeEval/cycles/cycles1n-10mFinal.csv' using ($1/10):2 title  "1 proc.,  lin. traversal" lw 4 dt 3 lc 2, \
+      'anytimeEval/cycles/cycles1t-10mFinal.csv' using ($1/10):2 title  "1 proc., log. traversal" lw 4 dt 2 lc 3 , \
+      'anytimeEval/cycles/cycles8n-10mFinal.csv' using ($1/10):2 title "8 proc.,  lin. traversal"  lw 4 dt 5 lc 4, \
+      'anytimeEval/cycles/cycles8t-10mFinal.csv' using ($1/10):2 title "8 proc., log. traversal"  lw 4 dt 4 lc 7
+
+
+exit
+
+
+
+set terminal pdf size 5,2.5 dashed
+set output 'anytimeEval/meanDiff.pdf'
+
+set bar 1.000000
+set style data lines
+
+set xtics nomirror out
+set ytics nomirror out
+set border 3
+
+set ylabel "Mean difference"
+set xlabel "Time (minutes)"
+
+set datafile separator ","
+set format x "%g"
+
+
+set key at 400,0.008
+
+plot 'bubble_sort_anytime_evaluation/mean_diff/mean_diff_1proc_notrav.csv' every 10::1 using ($1/60):2 title "1 proc.,  lin. traversal" lw 4 dt 3 lc 0, \
+     'bubble_sort_anytime_evaluation/mean_diff/mean_diff_1proc_trav.csv' every 10::1 using ($1/60):2 title "1 proc., log. traversal" lw 4 dt 2 lc 3 ,  \
+     'bubble_sort_anytime_evaluation/mean_diff/mean_diff_8proc_notrav.csv' every 10::1 using ($1/60):2 title "8 proc.,  lin. traversal"  lw 4 dt 5 lc 4, \
+     'bubble_sort_anytime_evaluation/mean_diff/mean_diff_8proc_trav.csv' every 10::1 using ($1/60):2 title "8 proc., log. traversal"  lw 4 dt 4 lc 7
+
+
+
+
+
+
+set terminal pdf size 5,2.5 dashed
+set output 'anytimeEval/weightedMean.pdf'
+
+set bar 1.000000
+set style data lines
+
+set xtics nomirror out
+set ytics nomirror out
+set border 3
+
+set ylabel "Weigted mean execution time (ns)"
+set xlabel "Time (minutes)"
+
+set datafile separator ","
+set format x "%g"
+
+
+set key at 400,1700
+
+plot 'bubble_sort_anytime_evaluation/weighted_mean/weighted_mean_1proc_notrav.csv' every 10::1 using ($1/60):($2/1000) title "1 proc.,  lin. traversal" lw 4 dt 3 lc 2, \
+     'bubble_sort_anytime_evaluation/weighted_mean/weighted_mean_1proc_trav.csv' every 10::1 using ($1/60):($2/1000) title "1 proc., log. traversal" lw 4 dt 2 lc 3 ,  \
+     'bubble_sort_anytime_evaluation/weighted_mean/weighted_mean_8proc_notrav.csv' every 10::1 using ($1/60):($2/1000) title "8 proc.,  lin. traversal"  lw 4 dt 5 lc 4, \
+     'bubble_sort_anytime_evaluation/weighted_mean/weighted_mean_8proc_trav.csv' every 10::1 using ($1/60):($2/1000) title "8 proc., log. traversal"  lw 4 dt 4 lc 5
+
+
+#plot  'anytimeEval/cycles/cyclesFinalSort.csv' using 1:2 title "final etd"       lw 4 lt 1 lc 1 pt 8, \
+#      'anytimeEval/cycles/cycles1n-10mFinal.csv' using 1:2 title  "lin 1c   10m" lw 4 dt 3 lc 1 pt 8, \
+#      'anytimeEval/cycles/cycles1n-60mFinal.csv' using 1:2 title  "lin 1c   60m" lw 4 dt 5 lc 1 pt 8, \
+#      'anytimeEval/cycles/cycles1n-120mFinal.csv' using 1:2 title "lin 1c  120m" lw 4 dt 4 lc 1 pt 8, \
+#      'anytimeEval/cycles/cycles1n-180mFinal.csv' using 1:2 title "lin 1c  180m" lw 4 lt 1 lc 1 pt 8, \
+#      'anytimeEval/cycles/cycles1t-10mFinal.csv' using 1:2 title  "log 1c   10m" lw 4 dt 3 lc 1 pt 9, \
+#      'anytimeEval/cycles/cycles1t-60mFinal.csv' using 1:2 title  "log 1c   60m" lw 4 dt 5 lc 1 pt 9, \
+#      'anytimeEval/cycles/cycles1t-120mFinal.csv' using 1:2 title "log 1c  120m" lw 4 dt 4 lc 1 pt 9, \
+#      'anytimeEval/cycles/cycles1t-180mFinal.csv' using 1:2 title "log 1c  180m" lw 4 lt 1 lc 1 pt 9, \
+#      'anytimeEval/cycles/cycles8n-10mFinal.csv' using 1:2 title "lin 8c  10m"  lw 4 dt 4 lc 1 pt 6, \
+#      'anytimeEval/cycles/cycles8n-30mFinal.csv' using 1:2 title "lin 8c  30m"  lw 4 lt 1 lc 1 pt 6, \
+#      'anytimeEval/cycles/cycles8t-10mFinal.csv' using 1:2 title "log 8c  10m"  lw 4 dt 4 lc 1 pt 7, \
+#      'anytimeEval/cycles/cycles8t-30mFinal.csv' using 1:2 title "log 8c  30m"  lw 4 lt 1 lc 1 pt 7
