@@ -1,5 +1,6 @@
 # EDiFy: An Execution time Distribution Finder
 A Python framework for deriving execution time distributions using the [gem5](http://gem5.org) simulator.
+The paper in which the framework is introduced can be [found in the ACM digital library](http://dl.acm.org/citation.cfm?id=3062233)
 
 ### Requirements
 * Python 3
